@@ -49,6 +49,7 @@
     .av-user   { background: #7c3aed; color: #fff; }
     .av-cat    { background: #0ea5e9; color: #fff; }
     .av-claw   { background: #f59e0b; color: #fff; }
+    .av-custom { background: #10b981; color: #fff; }
 
     #messages {
       flex: 1;
@@ -86,7 +87,9 @@
     .bubble-user   { background: #7c3aed; color: #fff; border-bottom-right-radius: 4px; }
     .bubble-cat    { background: #1e3a5f; color: #e0f2fe; border-bottom-left-radius: 4px; border: 1px solid #0ea5e933; }
     .bubble-claw   { background: #3b2000; color: #fef3c7; border-bottom-left-radius: 4px; border: 1px solid #f59e0b33; }
+    .bubble-custom { background: #064e3b; color: #d1fae5; border-bottom-left-radius: 4px; border: 1px solid #10b98133; }
     .bubble-system { background: #1f2937; color: #9ca3af; font-size: 12px; border-radius: 8px; text-align: center; }
+    .bubble-memory { background: #1a1a2e; color: #6b7280; font-size: 11px; border-radius: 8px; text-align: center; border: 1px dashed #2a2a4a; padding: 6px 12px; }
 
     .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 10px 14px; }
     .typing-indicator span {
@@ -107,6 +110,7 @@
     }
     .hint { font-size: 11px; color: #4b5563; margin-bottom: 8px; }
     .hint span { color: #7c3aed; }
+    .hint .hint-custom { color: #10b981; }
     .input-row { display: flex; gap: 10px; align-items: flex-end; }
     #msgInput {
       flex: 1;
@@ -206,35 +210,60 @@
       border: 1px solid #2a2a4a;
     }
 
+    /* ===== 登录页 ===== */
     #loginOverlay {
       position: fixed; inset: 0;
       background: #0f0f1a;
       display: flex; align-items: center; justify-content: center;
       z-index: 100;
+      overflow-y: auto;
+      padding: 20px;
     }
     .login-box {
       background: #1a1a2e;
       border: 1px solid #2a2a4a;
       border-radius: 20px;
-      padding: 40px;
-      width: 340px;
-      text-align: center;
+      padding: 36px 40px;
+      width: 420px;
+      max-width: 100%;
     }
-    .login-box h2 { font-size: 22px; color: #a78bfa; margin-bottom: 8px; }
-    .login-box p  { font-size: 13px; color: #6b7280; margin-bottom: 28px; }
-    .login-box input {
+    .login-box h2 { font-size: 22px; color: #a78bfa; margin-bottom: 6px; text-align: center; }
+    .login-box .subtitle { font-size: 13px; color: #6b7280; margin-bottom: 24px; text-align: center; }
+
+    .login-section {
+      margin-bottom: 20px;
+    }
+    .login-section-title {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .login-section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #2a2a4a;
+    }
+
+    .login-box input, .login-box textarea {
       width: 100%;
       background: #0f0f1a;
       border: 1px solid #2a2a4a;
       border-radius: 10px;
       color: #e0e0e0;
-      font-size: 15px;
-      padding: 12px 16px;
+      font-size: 14px;
+      padding: 10px 14px;
       outline: none;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
       transition: border-color 0.2s;
+      font-family: inherit;
     }
-    .login-box input:focus { border-color: #7c3aed; }
+    .login-box input:focus, .login-box textarea:focus { border-color: #7c3aed; }
+    .login-box textarea { resize: none; min-height: 70px; font-size: 13px; }
+
     .login-box button {
       width: 100%;
       background: #7c3aed;
@@ -245,23 +274,61 @@
       font-size: 15px;
       cursor: pointer;
       transition: background 0.2s;
+      margin-top: 4px;
     }
     .login-box button:hover { background: #6d28d9; }
-    .robots { display: flex; justify-content: center; gap: 16px; margin-bottom: 24px; }
+
+    .robots { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; }
     .robot-card {
       background: #0f0f1a;
       border: 1px solid #2a2a4a;
       border-radius: 12px;
-      padding: 12px 16px;
+      padding: 10px 14px;
       font-size: 12px;
       color: #9ca3af;
       text-align: center;
+      flex: 1;
     }
     .robot-card .r-avatar {
-      width: 40px; height: 40px; border-radius: 50%;
+      width: 36px; height: 36px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px; font-weight: 700;
+      font-size: 16px; font-weight: 700;
       margin: 0 auto 6px;
+    }
+    .robot-card .r-name { font-weight: 600; color: #d1d5db; margin-bottom: 2px; }
+    .robot-card .r-desc { font-size: 11px; color: #4b5563; }
+
+    .custom-ai-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #9ca3af;
+      cursor: pointer;
+      margin-bottom: 12px;
+      user-select: none;
+    }
+    .custom-ai-toggle input[type=checkbox] { accent-color: #10b981; width: 15px; height: 15px; cursor: pointer; }
+    .custom-ai-fields { display: none; }
+    .custom-ai-fields.show { display: block; }
+
+    .memory-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: #10b981;
+      background: #064e3b33;
+      border: 1px solid #10b98133;
+      border-radius: 20px;
+      padding: 2px 8px;
+      margin-left: 8px;
+    }
+
+    .input-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 4px;
     }
   </style>
 </head>
@@ -270,19 +337,53 @@
 <div id="loginOverlay">
   <div class="login-box">
     <h2>🤖 AI 聊天室</h2>
-    <p>和 不象话 &amp; 净瞎说 一起聊天</p>
+    <p class="subtitle">带上你的小龙虾，一起来聊天</p>
+
     <div class="robots">
       <div class="robot-card">
         <div class="r-avatar" style="background:#1e3a5f;color:#0ea5e9">不</div>
-        不象话
+        <div class="r-name">不象话</div>
+        <div class="r-desc">直接、不按套路</div>
       </div>
       <div class="robot-card">
         <div class="r-avatar" style="background:#3b2000;color:#f59e0b">净</div>
-        净瞎说
+        <div class="r-name">净瞎说</div>
+        <div class="r-desc">爱质疑、爱抬杠</div>
+      </div>
+      <div class="robot-card" id="customPreviewCard" style="display:none">
+        <div class="r-avatar" id="customPreviewAvatar" style="background:#064e3b;color:#10b981">?</div>
+        <div class="r-name" id="customPreviewName">你的AI</div>
+        <div class="r-desc" id="customPreviewDesc">专属小龙虾</div>
       </div>
     </div>
-    <input id="nicknameInput" type="text" placeholder="输入你的昵称" maxlength="20" />
-    <button onclick="enterChat()">进入聊天室</button>
+
+    <div class="login-section">
+      <div class="login-section-title">你是谁</div>
+      <input id="nicknameInput" type="text" placeholder="输入你的昵称" maxlength="20" />
+    </div>
+
+    <div class="login-section">
+      <div class="login-section-title">带上你的专属 AI（可选）</div>
+      <label class="custom-ai-toggle">
+        <input type="checkbox" id="enableCustomAI" onchange="toggleCustomAI()" />
+        我要带自己的小龙虾进来
+      </label>
+      <div class="custom-ai-fields" id="customAIFields">
+        <div class="input-label">给你的 AI 起个名字</div>
+        <input id="customAIName" type="text" placeholder="例如：老六、哲学家、毒舌顾问..." maxlength="20"
+               oninput="updateCustomPreview()" />
+        <div class="input-label">它的性格是什么样的？</div>
+        <textarea id="customAIPersonality" placeholder="例如：说话很毒但总是对的，喜欢用反问句，从不废话，专注于找出问题的本质..." rows="3"
+                  oninput="updateCustomPreview()"></textarea>
+        <div class="input-label">它用哪个 AI 模型？</div>
+        <select id="customAIModel" style="width:100%;background:#0f0f1a;border:1px solid #2a2a4a;border-radius:10px;color:#e0e0e0;font-size:14px;padding:10px 14px;outline:none;margin-bottom:10px;cursor:pointer;">
+          <option value="deepseek">DeepSeek（推荐）</option>
+          <option value="kimi">Kimi（月之暗面）</option>
+        </select>
+      </div>
+    </div>
+
+    <button onclick="enterChat()">进入聊天室 →</button>
   </div>
 </div>
 
@@ -292,6 +393,7 @@
   <div class="members">
     <div class="avatar av-cat" title="不象话">不</div>
     <div class="avatar av-claw" title="净瞎说">净</div>
+    <div class="avatar av-custom" id="customAvatarHeader" title="你的AI" style="display:none">?</div>
     <div class="avatar av-user" id="userAvatar" title="你">?</div>
   </div>
 </header>
@@ -299,7 +401,7 @@
 <div id="messages"></div>
 
 <div class="input-area">
-  <div class="hint">输入 <span>@不象话</span> 或 <span>@净瞎说</span> 呼叫指定 AI，或直接发消息让两个 AI 都回复</div>
+  <div class="hint" id="hintText">输入 <span>@不象话</span> 或 <span>@净瞎说</span> 呼叫指定 AI，或直接发消息让两个 AI 都回复</div>
   <div id="imgPreview">
     <img id="imgPreviewImg" src="" alt="预览" />
     <button class="remove-img" onclick="removeImage()">×</button>
@@ -314,51 +416,151 @@
 </div>
 
 <script>
+// ===== 固定 AI 的 system prompt =====
 const CATDESK_SYSTEM = `你是不象话，一个说话直接、不按套路出牌的 AI。你聪明专业，但从不废话，说出来的话让人觉得"这也太不象话了"——但偏偏有道理。
 
-你在一个三人聊天室里：用户负责抛出问题和最终拍板，你和净瞎说负责讨论、碰撞、给出方案。
+你在一个多人聊天室里：用户负责抛出问题和最终拍板，你和其他 AI 负责讨论、碰撞、给出方案。
 
 你的行为准则：
 - 用户发问时，你先给出具体方案或判断，简洁有力
-- 如果上下文里有净瞎说的发言，你要直接回应它——认同、反驳、或补充都行，但要有态度
-- 你们两个讨论的目的是帮用户做出更好的决策，不是为了吵架
+- 如果上下文里有其他 AI 的发言，你要直接回应——认同、反驳、或补充都行，但要有态度
+- 你们讨论的目的是帮用户做出更好的决策，不是为了吵架
 - 回复不超过150字，不废话，直接说核心
 - 如果用户发了图片，直接分析图片内容`;
 
 const OPENCLAW_SYSTEM = `你是净瞎说，一个爱质疑、爱抬杠的 AI。你天生喜欢从反面思考，说出来的话让人觉得"你在净瞎说吧"——但细想又有道理。
 
-你在一个三人聊天室里：用户负责抛出问题和最终拍板，你和不象话负责讨论、碰撞、给出方案。
+你在一个多人聊天室里：用户负责抛出问题和最终拍板，你和其他 AI 负责讨论、碰撞、给出方案。
 
 你的行为准则：
-- 如果上下文里有不象话的发言，你要直接回应它——质疑它的方案、指出盲点、或提出完全不同的思路
-- 不要只回应用户，要和不象话真正交锋
-- 你们两个讨论的目的是帮用户做出更好的决策
+- 如果上下文里有其他 AI 的发言，你要直接回应——质疑它的方案、指出盲点、或提出完全不同的思路
+- 不要只回应用户，要和其他 AI 真正交锋
+- 你们讨论的目的是帮用户做出更好的决策
 - 回复不超过150字，毒舌但有深度，不要客套
 - 如果用户发了图片，从批判角度分析`;
 
+// ===== 状态 =====
 let myName = '';
-let chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+let customAI = null; // { name, personality, model, memory: [] }
+let chatHistory = [];
 let isAiTyping = false;
 let pendingImageBase64 = null;
 let pendingImageMime = null;
 
+const DEEPSEEK_API_KEY = 'sk-8f5ba8d190a148fea59e34e9aff010a7';
+const KIMI_API_KEY = 'sk-sTEPX6wHlpBSiNj1qt8SSWaAbjAUSU9vB9b4syPoKYFN4TxZ';
+
+// ===== 登录页交互 =====
+function toggleCustomAI() {
+  const enabled = document.getElementById('enableCustomAI').checked;
+  document.getElementById('customAIFields').classList.toggle('show', enabled);
+  document.getElementById('customPreviewCard').style.display = enabled ? '' : 'none';
+  if (!enabled) {
+    document.getElementById('customPreviewName').textContent = '你的AI';
+    document.getElementById('customPreviewAvatar').textContent = '?';
+    document.getElementById('customPreviewDesc').textContent = '专属小龙虾';
+  }
+}
+
+function updateCustomPreview() {
+  const name = document.getElementById('customAIName').value.trim() || '你的AI';
+  const personality = document.getElementById('customAIPersonality').value.trim();
+  document.getElementById('customPreviewName').textContent = name;
+  document.getElementById('customPreviewAvatar').textContent = name[0] || '?';
+  document.getElementById('customPreviewDesc').textContent = personality ? personality.substring(0, 18) + (personality.length > 18 ? '...' : '') : '专属小龙虾';
+}
+
+function enterChat() {
+  const name = document.getElementById('nicknameInput').value.trim();
+  if (!name) { alert('请输入昵称'); return; }
+
+  const enableCustom = document.getElementById('enableCustomAI').checked;
+  if (enableCustom) {
+    const aiName = document.getElementById('customAIName').value.trim();
+    const aiPersonality = document.getElementById('customAIPersonality').value.trim();
+    if (!aiName) { alert('请给你的 AI 起个名字'); return; }
+    if (!aiPersonality) { alert('请描述你的 AI 的性格'); return; }
+    const aiModel = document.getElementById('customAIModel').value;
+
+    // 从 localStorage 恢复记忆
+    const savedMemory = JSON.parse(localStorage.getItem('customAI_memory_' + aiName) || '[]');
+
+    customAI = {
+      name: aiName,
+      personality: aiPersonality,
+      model: aiModel,
+      memory: savedMemory
+    };
+
+    // 更新头部头像
+    document.getElementById('customAvatarHeader').textContent = aiName[0];
+    document.getElementById('customAvatarHeader').style.display = '';
+    document.getElementById('customAvatarHeader').title = aiName;
+
+    // 更新输入提示
+    document.getElementById('hintText').innerHTML =
+      '输入 <span>@不象话</span>、<span>@净瞎说</span> 或 <span class="hint-custom">@' + aiName + '</span> 呼叫指定 AI，或直接发消息让所有 AI 回复';
+  }
+
+  myName = name;
+  // 从 localStorage 恢复聊天历史
+  chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+
+  document.getElementById('userAvatar').textContent = name[0].toUpperCase();
+  document.getElementById('loginOverlay').style.display = 'none';
+  addSystemMsg(name + ' 进入了聊天室');
+
+  // 如果有记忆，显示记忆提示
+  if (chatHistory.length > 0) {
+    addMemoryMsg('🧠 已恢复 ' + chatHistory.length + ' 条对话记忆');
+  }
+  if (customAI && customAI.memory.length > 0) {
+    addMemoryMsg('🦞 ' + customAI.name + ' 记得你：' + customAI.memory[customAI.memory.length - 1]);
+  }
+
+  setTimeout(() => {
+    if (customAI) {
+      addAiMsg('不象话', '👋 ' + name + ' 来了！我是不象话。看到你还带了 ' + customAI.name + '，有意思，今天我们三个好好聊聊。');
+    } else {
+      addAiMsg('不象话', '👋 你好 ' + name + '！我是不象话，有什么我可以帮你的？也可以 @净瞎说 让我们一起讨论。支持发图片哦！');
+    }
+  }, 600);
+}
+
+document.getElementById('nicknameInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') enterChat();
+});
+
+// ===== 记忆存储 =====
 function saveMemory() {
-  // 保存时过滤掉图片数据（太大），只保留文字历史
   const textOnly = chatHistory.map(m => ({
     role: m.role,
-    content: typeof m.content === 'string' ? m.content : (m.content.find(c => c.type === 'text') || {text:''}).text
+    content: typeof m.content === 'string' ? m.content :
+      (Array.isArray(m.content) ? (m.content.find(c => c.type === 'text') || {text:''}).text : '')
   }));
   localStorage.setItem('chatHistory', JSON.stringify(textOnly.slice(-40)));
+}
+
+function saveCustomAIMemory(summary) {
+  if (!customAI) return;
+  customAI.memory.push(summary);
+  if (customAI.memory.length > 20) customAI.memory = customAI.memory.slice(-20);
+  localStorage.setItem('customAI_memory_' + customAI.name, JSON.stringify(customAI.memory));
 }
 
 function clearMemory() {
   if (!confirm('确定清除所有聊天记忆吗？')) return;
   chatHistory = [];
   localStorage.removeItem('chatHistory');
+  if (customAI) {
+    customAI.memory = [];
+    localStorage.removeItem('customAI_memory_' + customAI.name);
+  }
   document.getElementById('messages').innerHTML = '';
   addSystemMsg('记忆已清除，重新开始');
 }
 
+// ===== 图片处理 =====
 function handleImageSelect(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -381,23 +583,7 @@ function removeImage() {
   document.getElementById('imgPreviewImg').src = '';
 }
 
-function enterChat() {
-  if (myName) return;
-  const name = document.getElementById('nicknameInput').value.trim();
-  if (!name) { alert('请输入昵称'); return; }
-  myName = name;
-  document.getElementById('userAvatar').textContent = name[0].toUpperCase();
-  document.getElementById('loginOverlay').style.display = 'none';
-  addSystemMsg(name + ' 进入了聊天室');
-  setTimeout(() => {
-    addAiMsg('不象话', '👋 你好 ' + name + '！我是不象话，有什么我可以帮你的？也可以 @净瞎说 让我们一起讨论。支持发图片哦！');
-  }, 600);
-}
-
-document.getElementById('nicknameInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') enterChat();
-});
-
+// ===== 发送消息 =====
 async function sendMessage() {
   const input = document.getElementById('msgInput');
   const text = input.value.trim();
@@ -413,7 +599,6 @@ async function sendMessage() {
 
   addUserMsg(myName, text, imageBase64, imageMime);
 
-  // 历史记录：有图片时用多模态格式，否则纯文字
   if (imageBase64) {
     chatHistory.push({
       role: 'user',
@@ -427,41 +612,49 @@ async function sendMessage() {
   }
   saveMemory();
 
-  const mentionCat  = /@不象话/.test(text);
-  const mentionClaw = /@净瞎说/.test(text);
-  const mentionBoth = !mentionCat && !mentionClaw;
+  const mentionCat    = /@不象话/.test(text);
+  const mentionClaw   = /@净瞎说/.test(text);
+  const mentionCustom = customAI && new RegExp('@' + customAI.name).test(text);
+  const mentionNone   = !mentionCat && !mentionClaw && !mentionCustom;
 
   isAiTyping = true;
   document.getElementById('sendBtn').disabled = true;
 
-  if (mentionCat || mentionBoth)  await replyAs('不象话', CATDESK_SYSTEM,  text, imageBase64, imageMime);
-  // 净瞎说在不象话回复之后才发请求，chatHistory 里已包含不象话的回复，形成真正的对话
-  if (mentionClaw || mentionBoth) await replyAs('净瞎说', OPENCLAW_SYSTEM, text, null, null);
+  // 不象话先回
+  if (mentionCat || mentionNone) {
+    await replyAs('不象话', CATDESK_SYSTEM, text, imageBase64, imageMime, 'deepseek');
+  }
+  // 净瞎说读到不象话的回复后再回
+  if (mentionClaw || mentionNone) {
+    await replyAs('净瞎说', OPENCLAW_SYSTEM, text, null, null, 'kimi');
+  }
+  // 专属 AI 最后回，能读到前两个的发言
+  
+  if (mentionCustom || mentionNone) {
+    if (customAI) await replyAsCustom(text, imageBase64, imageMime);
+  }
+
+  // 每轮对话结束后，让专属 AI 生成记忆摘要
+  if (customAI && (mentionCustom || mentionNone)) {
+    await generateCustomAIMemory();
+  }
 
   isAiTyping = false;
   document.getElementById('sendBtn').disabled = false;
 }
 
-const DEEPSEEK_API_KEY = 'sk-8f5ba8d190a148fea59e34e9aff010a7';
-const KIMI_API_KEY = 'sk-sTEPX6wHlpBSiNj1qt8SSWaAbjAUSU9vB9b4syPoKYFN4TxZ';
-
-async function replyAs(botName, systemPrompt, userText, imageBase64, imageMime) {
+// ===== 固定 AI 回复 =====
+async function replyAs(botName, systemPrompt, userText, imageBase64, imageMime, modelProvider) {
   const typingId = addTypingIndicator(botName);
 
-  // 构建历史消息（过滤掉图片数据，只保留文字，避免 token 过多）
-  const historyMessages = chatHistory.slice(-10).map(function(m) {
+  const historyMessages = chatHistory.slice(-12).map(function(m) {
     if (typeof m.content === 'string') return { role: m.role, content: m.content };
-    // 多模态消息只取文字部分用于历史
     const textPart = m.content.find(c => c.type === 'text');
     return { role: m.role, content: textPart ? textPart.text : '' };
   });
 
-  // 最后一条用户消息：如果有图片则用多模态格式
-  const lastUserMsg = historyMessages[historyMessages.length - 1];
   let finalMessages;
-
   if (imageBase64) {
-    // 替换最后一条为多模态格式
     const withoutLast = historyMessages.slice(0, -1);
     const multimodalMsg = {
       role: 'user',
@@ -477,8 +670,7 @@ async function replyAs(botName, systemPrompt, userText, imageBase64, imageMime) 
 
   try {
     let res, data, reply;
-
-    if (botName === '净瞎说') {
+    if (modelProvider === 'kimi') {
       res = await fetch('https://api.moonshot.cn/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIMI_API_KEY },
@@ -521,6 +713,141 @@ async function replyAs(botName, systemPrompt, userText, imageBase64, imageMime) 
   }
 }
 
+// ===== 专属 AI 回复 =====
+async function replyAsCustom(userText, imageBase64, imageMime) {
+  const ai = customAI;
+  const typingId = addTypingIndicator(ai.name);
+
+  // 构建专属 AI 的 system prompt，包含记忆
+  const memoryBlock = ai.memory.length > 0
+    ? '\n\n【你对用户的了解（长期记忆）】\n' + ai.memory.map((m, i) => (i+1) + '. ' + m).join('\n')
+    : '';
+
+  const systemPrompt = `你是${ai.name}，${ai.personality}
+
+你在一个多人聊天室里：用户负责抛出问题和最终拍板，你和不象话、净瞎说一起讨论、碰撞、给出方案。
+
+你的行为准则：
+- 如果上下文里有其他 AI 的发言，你要直接回应——认同、反驳、补充都行，要有自己的立场
+- 保持你独特的性格，不要变成普通助手
+- 回复不超过150字，有深度，不废话${memoryBlock}`;
+
+  const historyMessages = chatHistory.slice(-12).map(function(m) {
+    if (typeof m.content === 'string') return { role: m.role, content: m.content };
+    const textPart = m.content.find(c => c.type === 'text');
+    return { role: m.role, content: textPart ? textPart.text : '' };
+  });
+
+  let finalMessages;
+  if (imageBase64) {
+    const withoutLast = historyMessages.slice(0, -1);
+    const multimodalMsg = {
+      role: 'user',
+      content: [
+        { type: 'image_url', image_url: { url: 'data:' + imageMime + ';base64,' + imageBase64 } },
+        { type: 'text', text: myName + ': ' + (userText || '请分析这张图片') }
+      ]
+    };
+    finalMessages = [{ role: 'system', content: systemPrompt }, ...withoutLast, multimodalMsg];
+  } else {
+    finalMessages = [{ role: 'system', content: systemPrompt }, ...historyMessages];
+  }
+
+  try {
+    let res;
+    if (ai.model === 'kimi') {
+      res = await fetch('https://api.moonshot.cn/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIMI_API_KEY },
+        body: JSON.stringify({
+          model: imageBase64 ? 'moonshot-v1-8k-vision-preview' : 'moonshot-v1-8k',
+          messages: finalMessages,
+          max_tokens: 300,
+          temperature: 1.0
+        }),
+      });
+    } else {
+      res = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DEEPSEEK_API_KEY },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: finalMessages,
+          max_tokens: 400,
+          temperature: 0.9
+        }),
+      });
+    }
+
+    removeTypingIndicator(typingId);
+    if (!res.ok) {
+      const errText = await res.text();
+      addAiMsg(ai.name, '⚠️ 错误 ' + res.status + '：' + errText.substring(0, 200), true);
+      return;
+    }
+    const data = await res.json();
+    const reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content)
+      ? data.choices[0].message.content.trim()
+      : '（AI 暂时无法回复）';
+    addAiMsg(ai.name, reply, true);
+    chatHistory.push({ role: 'assistant', content: ai.name + ': ' + reply });
+    saveMemory();
+  } catch (e) {
+    removeTypingIndicator(typingId);
+    addAiMsg(ai.name, '⚠️ 连接出错：' + e.message, true);
+  }
+}
+
+// ===== 专属 AI 生成记忆摘要 =====
+async function generateCustomAIMemory() {
+  if (!customAI || chatHistory.length < 4) return;
+
+  // 取最近几轮对话生成摘要，静默进行不显示 typing
+  const recentHistory = chatHistory.slice(-8).map(m => {
+    if (typeof m.content === 'string') return m.content;
+    const textPart = m.content.find(c => c.type === 'text');
+    return textPart ? textPart.text : '';
+  }).join('\n');
+
+  const memoryPrompt = [{
+    role: 'system',
+    content: '你是一个记忆提取助手。根据对话内容，用一句话（不超过50字）总结用户最重要的信息、偏好或需求。只输出这一句话，不要任何前缀。'
+  }, {
+    role: 'user',
+    content: '对话内容：\n' + recentHistory + '\n\n请提取一条关于用户的关键记忆：'
+  }];
+
+  try {
+    const provider = customAI.model;
+    let res;
+    if (provider === 'kimi') {
+      res = await fetch('https://api.moonshot.cn/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIMI_API_KEY },
+        body: JSON.stringify({ model: 'moonshot-v1-8k', messages: memoryPrompt, max_tokens: 80, temperature: 0.3 }),
+      });
+    } else {
+      res = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DEEPSEEK_API_KEY },
+        body: JSON.stringify({ model: 'deepseek-chat', messages: memoryPrompt, max_tokens: 80, temperature: 0.3 }),
+      });
+    }
+    if (!res.ok) return;
+    const data = await res.json();
+    const summary = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
+      ? data.choices[0].message.content.trim()
+      : null;
+    if (summary) {
+      saveCustomAIMemory(summary);
+      addMemoryMsg('🧠 ' + customAI.name + ' 记住了：' + summary);
+    }
+  } catch (e) {
+    // 记忆生成失败静默处理
+  }
+}
+
+// ===== UI 渲染 =====
 function addUserMsg(name, text, imageBase64, imageMime) {
   const el = document.createElement('div');
   el.className = 'msg self';
@@ -537,15 +864,24 @@ function addUserMsg(name, text, imageBase64, imageMime) {
   appendMsg(el);
 }
 
-function addAiMsg(botName, text) {
+function addAiMsg(botName, text, isCustom) {
   const isCat = botName === '不象话';
+  const isClaw = botName === '净瞎说';
+  let avatarClass, bubbleClass, initial;
+  if (isCat) {
+    avatarClass = 'av-cat'; bubbleClass = 'bubble-cat'; initial = '不';
+  } else if (isClaw) {
+    avatarClass = 'av-claw'; bubbleClass = 'bubble-claw'; initial = '净';
+  } else {
+    avatarClass = 'av-custom'; bubbleClass = 'bubble-custom'; initial = botName[0];
+  }
   const el = document.createElement('div');
   el.className = 'msg';
   el.innerHTML =
-    '<div class="msg-avatar ' + (isCat ? 'av-cat' : 'av-claw') + '">' + (isCat ? '不' : '净') + '</div>' +
+    '<div class="msg-avatar ' + avatarClass + '">' + initial + '</div>' +
     '<div class="msg-body">' +
       '<div class="msg-meta">' + botName + ' · ' + now() + '</div>' +
-      '<div class="msg-bubble ' + (isCat ? 'bubble-cat' : 'bubble-claw') + '">' + escHtml(text) + '</div>' +
+      '<div class="msg-bubble ' + bubbleClass + '">' + escHtml(text) + '</div>' +
     '</div>';
   appendMsg(el);
 }
@@ -557,17 +893,33 @@ function addSystemMsg(text) {
   appendMsg(el);
 }
 
+function addMemoryMsg(text) {
+  const el = document.createElement('div');
+  el.className = 'msg';
+  el.innerHTML = '<div class="msg-bubble bubble-memory" style="margin:0 auto">' + escHtml(text) + '</div>';
+  appendMsg(el);
+}
+
 function addTypingIndicator(botName) {
   const isCat = botName === '不象话';
+  const isClaw = botName === '净瞎说';
+  let avatarClass, bubbleClass, initial;
+  if (isCat) {
+    avatarClass = 'av-cat'; bubbleClass = 'bubble-cat'; initial = '不';
+  } else if (isClaw) {
+    avatarClass = 'av-claw'; bubbleClass = 'bubble-claw'; initial = '净';
+  } else {
+    avatarClass = 'av-custom'; bubbleClass = 'bubble-custom'; initial = botName[0];
+  }
   const id = 'typing-' + Date.now();
   const el = document.createElement('div');
   el.className = 'msg';
   el.id = id;
   el.innerHTML =
-    '<div class="msg-avatar ' + (isCat ? 'av-cat' : 'av-claw') + '">' + (isCat ? '不' : '净') + '</div>' +
+    '<div class="msg-avatar ' + avatarClass + '">' + initial + '</div>' +
     '<div class="msg-body">' +
       '<div class="msg-meta">' + botName + ' 正在输入...</div>' +
-      '<div class="msg-bubble ' + (isCat ? 'bubble-cat' : 'bubble-claw') + '">' +
+      '<div class="msg-bubble ' + bubbleClass + '">' +
         '<div class="typing-indicator"><span></span><span></span><span></span></div>' +
       '</div>' +
     '</div>';
