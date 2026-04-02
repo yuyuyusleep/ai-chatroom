@@ -302,7 +302,7 @@ async function replyAs(botName, systemPrompt, userText) {
   ];
 
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://ai-chatroom-proxy.a28516701.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages: messages, botName: botName }),
