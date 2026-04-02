@@ -163,11 +163,11 @@
       border: 1px solid #2a2a4a;
       border-radius: 20px;
       padding: 40px;
-      width: 340px;
+      width: 380px;
       text-align: center;
     }
     .login-box h2 { font-size: 22px; color: #a78bfa; margin-bottom: 8px; }
-    .login-box p  { font-size: 13px; color: #6b7280; margin-bottom: 28px; }
+    .login-box p  { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
     .login-box input {
       width: 100%;
       background: #0f0f1a;
@@ -177,10 +177,11 @@
       font-size: 15px;
       padding: 12px 16px;
       outline: none;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       transition: border-color 0.2s;
     }
     .login-box input:focus { border-color: #7c3aed; }
+    .login-box input::placeholder { color: #4b5563; }
     .login-box button {
       width: 100%;
       background: #7c3aed;
@@ -191,6 +192,7 @@
       font-size: 15px;
       cursor: pointer;
       transition: background 0.2s;
+      margin-top: 4px;
     }
     .login-box button:hover { background: #6d28d9; }
     .robots { display: flex; justify-content: center; gap: 16px; margin-bottom: 24px; }
@@ -209,6 +211,14 @@
       font-size: 18px; font-weight: 700;
       margin: 0 auto 6px;
     }
+    .key-label {
+      font-size: 11px; color: #6b7280;
+      text-align: left;
+      margin-bottom: 4px;
+      margin-top: 4px;
+    }
+    .key-label a { color: #7c3aed; text-decoration: none; }
+    .key-label a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -229,6 +239,8 @@
       </div>
     </div>
     <input id="nicknameInput" type="text" placeholder="输入你的昵称" maxlength="20" />
+    <div class="key-label">DeepSeek API Key（CatDesk 使用）<a href="https://platform.deepseek.com/api_keys" target="_blank">获取 →</a></div>
+    <input id="dsKeyInput" type="password" placeholder="sk-xxxxxxxxxxxxxxxx" />
     <button onclick="enterChat()">进入聊天室</button>
   </div>
 </div>
@@ -256,7 +268,13 @@
 
 <script>
 // ── 配置 ──────────────────────────────────────────
-const FRIDAY_APP_ID = 'REPLACE_WITH_FRIDAY_APPID'; // 部署时替换
+// OpenClaw 飞书云端地址（净虾说）
+const OPENCLAW_BASE = 'https://wmkoqvc4bq-app_4juv8k69pmm6b-1861268274721987.aiforce.run';
+const OPENCLAW_TOKEN = 'chatroom-openclaw-2026';
+
+// DeepSeek API
+const DEEPSEEK_BASE = 'https://api.deepseek.com';
+const DEEPSEEK_MODEL = 'deepseek-chat';
 
 const CATDESK_SYSTEM = `你是 CatDesk，美团质量与效率团队打造的 AI 助手。你聪明、专业、有条理，擅长解决技术问题和工作任务。
 你在一个三人聊天室里，另一个 AI 是 OpenClaw，用户也在。
@@ -268,15 +286,20 @@ const OPENCLAW_SYSTEM = `你是 OpenClaw，一个开放、创意、思维发散�
 
 // ── 状态 ──────────────────────────────────────────
 let myName = '';
+let dsApiKey = '';
 let chatHistory = [];
 let isAiTyping = false;
 
 // ── 进入聊天室 ────────────────────────────────────
 function enterChat() {
-  if (myName) return; // 防止重复进入
+  if (myName) return;
   const name = document.getElementById('nicknameInput').value.trim();
   if (!name) { alert('请输入昵称'); return; }
+  const key = document.getElementById('dsKeyInput').value.trim();
+  if (!key) { alert('请输入 DeepSeek API Key（CatDesk 需要它来回复）'); return; }
+
   myName = name;
+  dsApiKey = key;
   document.getElementById('userAvatar').textContent = name[0].toUpperCase();
   document.getElementById('loginOverlay').style.display = 'none';
   addSystemMsg(`${name} 进入了聊天室`);
@@ -286,6 +309,9 @@ function enterChat() {
 }
 
 document.getElementById('nicknameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('dsKeyInput').focus();
+});
+document.getElementById('dsKeyInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') enterChat();
 });
 
@@ -300,52 +326,99 @@ async function sendMessage() {
   addUserMsg(myName, text);
   chatHistory.push({ role: 'user', content: `${myName}: ${text}` });
 
-  // 判断 @ 谁
-  const mentionCat  = text.includes('@CatDesk')  || text.includes('@catdesk');
-  const mentionClaw = text.includes('@OpenClaw') || text.includes('@openclaw');
-  const mentionBoth = !mentionCat && !mentionClaw; // 没有 @ 就两个都回
+  const mentionCat  = /\@CatDesk/i.test(text);
+  const mentionClaw = /\@OpenClaw/i.test(text);
+  const mentionBoth = !mentionCat && !mentionClaw;
 
   isAiTyping = true;
   document.getElementById('sendBtn').disabled = true;
 
   if (mentionCat || mentionBoth) {
-    await replyAs('CatDesk', CATDESK_SYSTEM, text);
+    await replyAsCatDesk(text);
   }
   if (mentionClaw || mentionBoth) {
-    // 如果两个都回，让 OpenClaw 看到 CatDesk 的回复
-    await replyAs('OpenClaw', OPENCLAW_SYSTEM, text);
+    await replyAsOpenClaw(text);
   }
 
   isAiTyping = false;
   document.getElementById('sendBtn').disabled = false;
 }
 
-// ── AI 回复 ───────────────────────────────────────
-async function replyAs(botName, systemPrompt, userText) {
-  const typingId = addTypingIndicator(botName);
-
-  // 构建消息历史（最近10条）
+// ── CatDesk 回复（直调 DeepSeek） ─────────────────
+async function replyAsCatDesk(userText) {
+  const typingId = addTypingIndicator('CatDesk');
   const recent = chatHistory.slice(-10);
   const messages = [
-    { role: 'system', content: systemPrompt },
+    { role: 'system', content: CATDESK_SYSTEM },
     ...recent.map(m => ({ role: m.role, content: m.content })),
   ];
 
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch(`${DEEPSEEK_BASE}/chat/completions`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages, botName }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${dsApiKey}`,
+      },
+      body: JSON.stringify({
+        model: DEEPSEEK_MODEL,
+        messages,
+        max_tokens: 400,
+        temperature: 0.7,
+      }),
     });
-    const data = await res.json();
     removeTypingIndicator(typingId);
-
-    const reply = data.reply || '（AI 暂时无法回复）';
-    addAiMsg(botName, reply);
-    chatHistory.push({ role: 'assistant', content: `${botName}: ${reply}` });
+    if (!res.ok) {
+      const errText = await res.text();
+      addAiMsg('CatDesk', `⚠️ DeepSeek 错误 ${res.status}：${errText.substring(0, 200)}`);
+      return;
+    }
+    const data = await res.json();
+    const reply = data.choices?.[0]?.message?.content?.trim() || '（CatDesk 暂时无法回复）';
+    addAiMsg('CatDesk', reply);
+    chatHistory.push({ role: 'assistant', content: `CatDesk: ${reply}` });
   } catch (e) {
     removeTypingIndicator(typingId);
-    addAiMsg(botName, '⚠️ 连接出错，请稍后再试。');
+    addAiMsg('CatDesk', `⚠️ 连接出错：${e.message}`);
+  }
+}
+
+// ── OpenClaw 回复（直调飞书云端净虾说） ───────────
+async function replyAsOpenClaw(userText) {
+  const typingId = addTypingIndicator('OpenClaw');
+  const recent = chatHistory.slice(-10);
+  const messages = [
+    { role: 'system', content: OPENCLAW_SYSTEM },
+    ...recent.map(m => ({ role: m.role, content: m.content })),
+  ];
+
+  try {
+    const res = await fetch(`${OPENCLAW_BASE}/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENCLAW_TOKEN}`,
+      },
+      body: JSON.stringify({
+        model: 'openclaw',
+        messages,
+        max_tokens: 400,
+        temperature: 0.8,
+      }),
+    });
+    removeTypingIndicator(typingId);
+    if (!res.ok) {
+      const errText = await res.text();
+      addAiMsg('OpenClaw', `⚠️ OpenClaw 错误 ${res.status}：${errText.substring(0, 200)}`);
+      return;
+    }
+    const data = await res.json();
+    const reply = data.choices?.[0]?.message?.content?.trim() || '（OpenClaw 暂时无法回复）';
+    addAiMsg('OpenClaw', reply);
+    chatHistory.push({ role: 'assistant', content: `OpenClaw: ${reply}` });
+  } catch (e) {
+    removeTypingIndicator(typingId);
+    addAiMsg('OpenClaw', `⚠️ 连接出错：${e.message}`);
   }
 }
 
