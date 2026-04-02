@@ -16,7 +16,6 @@
       flex-direction: column;
     }
 
-    /* ── Header ── */
     header {
       background: #1a1a2e;
       border-bottom: 1px solid #2a2a4a;
@@ -51,7 +50,6 @@
     .av-cat    { background: #0ea5e9; color: #fff; }
     .av-claw   { background: #f59e0b; color: #fff; }
 
-    /* ── Messages ── */
     #messages {
       flex: 1;
       overflow-y: auto;
@@ -74,10 +72,7 @@
     }
 
     .msg-body { max-width: 70%; }
-    .msg-meta {
-      font-size: 11px; color: #6b7280;
-      margin-bottom: 4px;
-    }
+    .msg-meta { font-size: 11px; color: #6b7280; margin-bottom: 4px; }
     .msg.self .msg-meta { text-align: right; }
 
     .msg-bubble {
@@ -88,10 +83,10 @@
       word-break: break-word;
       white-space: pre-wrap;
     }
-    .bubble-user  { background: #7c3aed; color: #fff; border-bottom-right-radius: 4px; }
-    .bubble-cat   { background: #1e3a5f; color: #e0f2fe; border-bottom-left-radius: 4px; border: 1px solid #0ea5e933; }
-    .bubble-claw  { background: #3b2000; color: #fef3c7; border-bottom-left-radius: 4px; border: 1px solid #f59e0b33; }
-    .bubble-system { background: #1f2937; color: #9ca3af; font-size: 12px; border-radius: 8px; text-align: center; align-self: center; }
+    .bubble-user   { background: #7c3aed; color: #fff; border-bottom-right-radius: 4px; }
+    .bubble-cat    { background: #1e3a5f; color: #e0f2fe; border-bottom-left-radius: 4px; border: 1px solid #0ea5e933; }
+    .bubble-claw   { background: #3b2000; color: #fef3c7; border-bottom-left-radius: 4px; border: 1px solid #f59e0b33; }
+    .bubble-system { background: #1f2937; color: #9ca3af; font-size: 12px; border-radius: 8px; text-align: center; }
 
     .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 10px 14px; }
     .typing-indicator span {
@@ -105,20 +100,14 @@
       30% { transform: translateY(-6px); }
     }
 
-    /* ── Input ── */
     .input-area {
       background: #1a1a2e;
       border-top: 1px solid #2a2a4a;
       padding: 14px 20px;
     }
-    .hint {
-      font-size: 11px; color: #4b5563;
-      margin-bottom: 8px;
-    }
+    .hint { font-size: 11px; color: #4b5563; margin-bottom: 8px; }
     .hint span { color: #7c3aed; }
-    .input-row {
-      display: flex; gap: 10px; align-items: flex-end;
-    }
+    .input-row { display: flex; gap: 10px; align-items: flex-end; }
     #msgInput {
       flex: 1;
       background: #0f0f1a;
@@ -151,7 +140,6 @@
     #sendBtn:hover { background: #6d28d9; }
     #sendBtn:disabled { background: #374151; cursor: not-allowed; }
 
-    /* ── Login overlay ── */
     #loginOverlay {
       position: fixed; inset: 0;
       background: #0f0f1a;
@@ -163,11 +151,11 @@
       border: 1px solid #2a2a4a;
       border-radius: 20px;
       padding: 40px;
-      width: 380px;
+      width: 340px;
       text-align: center;
     }
     .login-box h2 { font-size: 22px; color: #a78bfa; margin-bottom: 8px; }
-    .login-box p  { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
+    .login-box p  { font-size: 13px; color: #6b7280; margin-bottom: 28px; }
     .login-box input {
       width: 100%;
       background: #0f0f1a;
@@ -177,11 +165,10 @@
       font-size: 15px;
       padding: 12px 16px;
       outline: none;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
       transition: border-color 0.2s;
     }
     .login-box input:focus { border-color: #7c3aed; }
-    .login-box input::placeholder { color: #4b5563; }
     .login-box button {
       width: 100%;
       background: #7c3aed;
@@ -192,7 +179,6 @@
       font-size: 15px;
       cursor: pointer;
       transition: background 0.2s;
-      margin-top: 4px;
     }
     .login-box button:hover { background: #6d28d9; }
     .robots { display: flex; justify-content: center; gap: 16px; margin-bottom: 24px; }
@@ -211,19 +197,10 @@
       font-size: 18px; font-weight: 700;
       margin: 0 auto 6px;
     }
-    .key-label {
-      font-size: 11px; color: #6b7280;
-      text-align: left;
-      margin-bottom: 4px;
-      margin-top: 4px;
-    }
-    .key-label a { color: #7c3aed; text-decoration: none; }
-    .key-label a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
-<!-- Login -->
 <div id="loginOverlay">
   <div class="login-box">
     <h2>🤖 AI 聊天室</h2>
@@ -239,16 +216,13 @@
       </div>
     </div>
     <input id="nicknameInput" type="text" placeholder="输入你的昵称" maxlength="20" />
-    <div class="key-label">DeepSeek API Key（CatDesk 使用）<a href="https://platform.deepseek.com/api_keys" target="_blank">获取 →</a></div>
-    <input id="dsKeyInput" type="password" placeholder="sk-xxxxxxxxxxxxxxxx" />
     <button onclick="enterChat()">进入聊天室</button>
   </div>
 </div>
 
-<!-- Chat UI -->
 <header>
   <h1>🤖 AI 聊天室</h1>
-  <span class="online-badge" id="onlineBadge">● 在线</span>
+  <span class="online-badge">● 在线</span>
   <div class="members">
     <div class="avatar av-cat" title="CatDesk">C</div>
     <div class="avatar av-claw" title="OpenClaw">O</div>
@@ -267,15 +241,6 @@
 </div>
 
 <script>
-// ── 配置 ──────────────────────────────────────────
-// OpenClaw 飞书云端地址（净虾说）
-const OPENCLAW_BASE = 'https://wmkoqvc4bq-app_4juv8k69pmm6b-1861268274721987.aiforce.run';
-const OPENCLAW_TOKEN = 'chatroom-openclaw-2026';
-
-// DeepSeek API
-const DEEPSEEK_BASE = 'https://api.deepseek.com';
-const DEEPSEEK_MODEL = 'deepseek-chat';
-
 const CATDESK_SYSTEM = `你是 CatDesk，美团质量与效率团队打造的 AI 助手。你聪明、专业、有条理，擅长解决技术问题和工作任务。
 你在一个三人聊天室里，另一个 AI 是 OpenClaw，用户也在。
 回复要简洁有力，不超过200字。遇到技术问题给出具体方案。`;
@@ -284,38 +249,27 @@ const OPENCLAW_SYSTEM = `你是 OpenClaw，一个开放、创意、思维发散�
 你在一个三人聊天室里，另一个 AI 是 CatDesk，用户也在。
 回复要有个性，偶尔幽默，不超过200字。`;
 
-// ── 状态 ──────────────────────────────────────────
 let myName = '';
-let dsApiKey = '';
 let chatHistory = [];
 let isAiTyping = false;
 
-// ── 进入聊天室 ────────────────────────────────────
 function enterChat() {
   if (myName) return;
   const name = document.getElementById('nicknameInput').value.trim();
   if (!name) { alert('请输入昵称'); return; }
-  const key = document.getElementById('dsKeyInput').value.trim();
-  if (!key) { alert('请输入 DeepSeek API Key（CatDesk 需要它来回复）'); return; }
-
   myName = name;
-  dsApiKey = key;
   document.getElementById('userAvatar').textContent = name[0].toUpperCase();
   document.getElementById('loginOverlay').style.display = 'none';
-  addSystemMsg(`${name} 进入了聊天室`);
+  addSystemMsg(name + ' 进入了聊天室');
   setTimeout(() => {
-    addAiMsg('CatDesk', `👋 你好 ${name}！我是 CatDesk，有什么我可以帮你的？也可以 @OpenClaw 让我们一起讨论。`);
+    addAiMsg('CatDesk', '👋 你好 ' + name + '！我是 CatDesk，有什么我可以帮你的？也可以 @OpenClaw 让我们一起讨论。');
   }, 600);
 }
 
-document.getElementById('nicknameInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('dsKeyInput').focus();
-});
-document.getElementById('dsKeyInput').addEventListener('keydown', e => {
+document.getElementById('nicknameInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') enterChat();
 });
 
-// ── 发送消息 ──────────────────────────────────────
 async function sendMessage() {
   const input = document.getElementById('msgInput');
   const text = input.value.trim();
@@ -324,114 +278,61 @@ async function sendMessage() {
   input.value = '';
   input.style.height = 'auto';
   addUserMsg(myName, text);
-  chatHistory.push({ role: 'user', content: `${myName}: ${text}` });
+  chatHistory.push({ role: 'user', content: myName + ': ' + text });
 
-  const mentionCat  = /\@CatDesk/i.test(text);
-  const mentionClaw = /\@OpenClaw/i.test(text);
+  const mentionCat  = /@CatDesk/i.test(text);
+  const mentionClaw = /@OpenClaw/i.test(text);
   const mentionBoth = !mentionCat && !mentionClaw;
 
   isAiTyping = true;
   document.getElementById('sendBtn').disabled = true;
 
-  if (mentionCat || mentionBoth) {
-    await replyAsCatDesk(text);
-  }
-  if (mentionClaw || mentionBoth) {
-    await replyAsOpenClaw(text);
-  }
+  if (mentionCat || mentionBoth)  await replyAs('CatDesk',  CATDESK_SYSTEM,  text);
+  if (mentionClaw || mentionBoth) await replyAs('OpenClaw', OPENCLAW_SYSTEM, text);
 
   isAiTyping = false;
   document.getElementById('sendBtn').disabled = false;
 }
 
-// ── CatDesk 回复（直调 DeepSeek） ─────────────────
-async function replyAsCatDesk(userText) {
-  const typingId = addTypingIndicator('CatDesk');
-  const recent = chatHistory.slice(-10);
+async function replyAs(botName, systemPrompt, userText) {
+  const typingId = addTypingIndicator(botName);
   const messages = [
-    { role: 'system', content: CATDESK_SYSTEM },
-    ...recent.map(m => ({ role: m.role, content: m.content })),
+    { role: 'system', content: systemPrompt },
+    ...chatHistory.slice(-10).map(function(m) { return { role: m.role, content: m.content }; }),
   ];
 
   try {
-    const res = await fetch(`${DEEPSEEK_BASE}/chat/completions`, {
+    const res = await fetch('/api/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${dsApiKey}`,
-      },
-      body: JSON.stringify({
-        model: DEEPSEEK_MODEL,
-        messages,
-        max_tokens: 400,
-        temperature: 0.7,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: messages, botName: botName }),
     });
     removeTypingIndicator(typingId);
     if (!res.ok) {
       const errText = await res.text();
-      addAiMsg('CatDesk', `⚠️ DeepSeek 错误 ${res.status}：${errText.substring(0, 200)}`);
+      addAiMsg(botName, '⚠️ 错误 ' + res.status + '：' + errText.substring(0, 200));
       return;
     }
     const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content?.trim() || '（CatDesk 暂时无法回复）';
-    addAiMsg('CatDesk', reply);
-    chatHistory.push({ role: 'assistant', content: `CatDesk: ${reply}` });
+    if (data.error) { addAiMsg(botName, '⚠️ ' + data.error); return; }
+    const reply = data.reply || '（AI 暂时无法回复）';
+    addAiMsg(botName, reply);
+    chatHistory.push({ role: 'assistant', content: botName + ': ' + reply });
   } catch (e) {
     removeTypingIndicator(typingId);
-    addAiMsg('CatDesk', `⚠️ 连接出错：${e.message}`);
+    addAiMsg(botName, '⚠️ 连接出错：' + e.message);
   }
 }
 
-// ── OpenClaw 回复（直调飞书云端净虾说） ───────────
-async function replyAsOpenClaw(userText) {
-  const typingId = addTypingIndicator('OpenClaw');
-  const recent = chatHistory.slice(-10);
-  const messages = [
-    { role: 'system', content: OPENCLAW_SYSTEM },
-    ...recent.map(m => ({ role: m.role, content: m.content })),
-  ];
-
-  try {
-    const res = await fetch(`${OPENCLAW_BASE}/v1/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENCLAW_TOKEN}`,
-      },
-      body: JSON.stringify({
-        model: 'openclaw',
-        messages,
-        max_tokens: 400,
-        temperature: 0.8,
-      }),
-    });
-    removeTypingIndicator(typingId);
-    if (!res.ok) {
-      const errText = await res.text();
-      addAiMsg('OpenClaw', `⚠️ OpenClaw 错误 ${res.status}：${errText.substring(0, 200)}`);
-      return;
-    }
-    const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content?.trim() || '（OpenClaw 暂时无法回复）';
-    addAiMsg('OpenClaw', reply);
-    chatHistory.push({ role: 'assistant', content: `OpenClaw: ${reply}` });
-  } catch (e) {
-    removeTypingIndicator(typingId);
-    addAiMsg('OpenClaw', `⚠️ 连接出错：${e.message}`);
-  }
-}
-
-// ── DOM 操作 ──────────────────────────────────────
 function addUserMsg(name, text) {
   const el = document.createElement('div');
   el.className = 'msg self';
-  el.innerHTML = `
-    <div class="msg-avatar av-user">${name[0].toUpperCase()}</div>
-    <div class="msg-body">
-      <div class="msg-meta">${name} · ${now()}</div>
-      <div class="msg-bubble bubble-user">${escHtml(text)}</div>
-    </div>`;
+  el.innerHTML =
+    '<div class="msg-avatar av-user">' + name[0].toUpperCase() + '</div>' +
+    '<div class="msg-body">' +
+      '<div class="msg-meta">' + name + ' · ' + now() + '</div>' +
+      '<div class="msg-bubble bubble-user">' + escHtml(text) + '</div>' +
+    '</div>';
   appendMsg(el);
 }
 
@@ -439,19 +340,19 @@ function addAiMsg(botName, text) {
   const isCat = botName === 'CatDesk';
   const el = document.createElement('div');
   el.className = 'msg';
-  el.innerHTML = `
-    <div class="msg-avatar ${isCat ? 'av-cat' : 'av-claw'}">${botName[0]}</div>
-    <div class="msg-body">
-      <div class="msg-meta">${botName} · ${now()}</div>
-      <div class="msg-bubble ${isCat ? 'bubble-cat' : 'bubble-claw'}">${escHtml(text)}</div>
-    </div>`;
+  el.innerHTML =
+    '<div class="msg-avatar ' + (isCat ? 'av-cat' : 'av-claw') + '">' + botName[0] + '</div>' +
+    '<div class="msg-body">' +
+      '<div class="msg-meta">' + botName + ' · ' + now() + '</div>' +
+      '<div class="msg-bubble ' + (isCat ? 'bubble-cat' : 'bubble-claw') + '">' + escHtml(text) + '</div>' +
+    '</div>';
   appendMsg(el);
 }
 
 function addSystemMsg(text) {
   const el = document.createElement('div');
   el.className = 'msg';
-  el.innerHTML = `<div class="msg-bubble bubble-system" style="margin:0 auto">${escHtml(text)}</div>`;
+  el.innerHTML = '<div class="msg-bubble bubble-system" style="margin:0 auto">' + escHtml(text) + '</div>';
   appendMsg(el);
 }
 
@@ -461,14 +362,14 @@ function addTypingIndicator(botName) {
   const el = document.createElement('div');
   el.className = 'msg';
   el.id = id;
-  el.innerHTML = `
-    <div class="msg-avatar ${isCat ? 'av-cat' : 'av-claw'}">${botName[0]}</div>
-    <div class="msg-body">
-      <div class="msg-meta">${botName} 正在输入...</div>
-      <div class="msg-bubble ${isCat ? 'bubble-cat' : 'bubble-claw'}">
-        <div class="typing-indicator"><span></span><span></span><span></span></div>
-      </div>
-    </div>`;
+  el.innerHTML =
+    '<div class="msg-avatar ' + (isCat ? 'av-cat' : 'av-claw') + '">' + botName[0] + '</div>' +
+    '<div class="msg-body">' +
+      '<div class="msg-meta">' + botName + ' 正在输入...</div>' +
+      '<div class="msg-bubble ' + (isCat ? 'bubble-cat' : 'bubble-claw') + '">' +
+        '<div class="typing-indicator"><span></span><span></span><span></span></div>' +
+      '</div>' +
+    '</div>';
   appendMsg(el);
   return id;
 }
@@ -479,9 +380,9 @@ function removeTypingIndicator(id) {
 }
 
 function appendMsg(el) {
-  const container = document.getElementById('messages');
-  container.appendChild(el);
-  container.scrollTop = container.scrollHeight;
+  const c = document.getElementById('messages');
+  c.appendChild(el);
+  c.scrollTop = c.scrollHeight;
 }
 
 function now() {
@@ -492,12 +393,8 @@ function escHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
 }
 
-// ── 快捷键 ────────────────────────────────────────
-document.getElementById('msgInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
+document.getElementById('msgInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
 
 document.getElementById('msgInput').addEventListener('input', function() {
