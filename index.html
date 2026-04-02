@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI 聊天室 · CatDesk & OpenClaw</title>
+  <title>AI 聊天室 · 不象话 &amp; 净瞎说</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -204,15 +204,15 @@
 <div id="loginOverlay">
   <div class="login-box">
     <h2>🤖 AI 聊天室</h2>
-    <p>和 CatDesk & OpenClaw 一起聊天</p>
+    <p>和 不象话 &amp; 净瞎说 一起聊天</p>
     <div class="robots">
       <div class="robot-card">
-        <div class="r-avatar" style="background:#1e3a5f;color:#0ea5e9">C</div>
-        CatDesk
+        <div class="r-avatar" style="background:#1e3a5f;color:#0ea5e9">不</div>
+        不象话
       </div>
       <div class="robot-card">
-        <div class="r-avatar" style="background:#3b2000;color:#f59e0b">O</div>
-        OpenClaw
+        <div class="r-avatar" style="background:#3b2000;color:#f59e0b">净</div>
+        净瞎说
       </div>
     </div>
     <input id="nicknameInput" type="text" placeholder="输入你的昵称" maxlength="20" />
@@ -224,8 +224,8 @@
   <h1>🤖 AI 聊天室</h1>
   <span class="online-badge">● 在线</span>
   <div class="members">
-    <div class="avatar av-cat" title="CatDesk">C</div>
-    <div class="avatar av-claw" title="OpenClaw">O</div>
+    <div class="avatar av-cat" title="不象话">不</div>
+    <div class="avatar av-claw" title="净瞎说">净</div>
     <div class="avatar av-user" id="userAvatar" title="你">?</div>
   </div>
 </header>
@@ -233,7 +233,7 @@
 <div id="messages"></div>
 
 <div class="input-area">
-  <div class="hint">输入 <span>@CatDesk</span> 或 <span>@OpenClaw</span> 呼叫指定 AI，或直接发消息让两个 AI 都回复</div>
+  <div class="hint">输入 <span>@不象话</span> 或 <span>@净瞎说</span> 呼叫指定 AI，或直接发消息让两个 AI 都回复</div>
   <div class="input-row">
     <textarea id="msgInput" placeholder="说点什么..." rows="1"></textarea>
     <button id="sendBtn" onclick="sendMessage()">发送</button>
@@ -241,13 +241,13 @@
 </div>
 
 <script>
-const CATDESK_SYSTEM = `你是 CatDesk，美团质量与效率团队打造的 AI 助手。你聪明、专业、有条理，擅长解决技术问题和工作任务。
-你在一个三人聊天室里，另一个 AI 是 OpenClaw，用户也在。
+const CATDESK_SYSTEM = `你是不象话，一个说话直接、不按套路出牌的 AI。你聪明专业，但从不废话，说出来的话让人觉得"这也太不象话了"——但偏偏有道理。
+你在一个三人聊天室里，另一个 AI 是净瞎说，用户也在。
 回复要简洁有力，不超过200字。遇到技术问题给出具体方案。`;
 
-const OPENCLAW_SYSTEM = `你是 OpenClaw，一个开放、创意、思维发散的 AI 助手。你喜欢从不同角度思考问题，有时会提出意想不到的解决方案。
-你在一个三人聊天室里，另一个 AI 是 CatDesk，用户也在。
-回复要有个性，偶尔幽默，不超过200字。`;
+const OPENCLAW_SYSTEM = `你是净瞎说，一个爱质疑、爱抬杠的 AI。你天生喜欢从反面思考，说出来的话让人觉得"你在净瞎说吧"——但细想又有道理。
+你在一个三人聊天室里，另一个 AI 是不象话，用户也在。你的使命是质疑、指出盲点、提出不同思路。
+说话简短、毒舌，但观点有深度。不超过150字。不要客套，直接说核心。`;
 
 let myName = '';
 let chatHistory = [];
@@ -262,7 +262,7 @@ function enterChat() {
   document.getElementById('loginOverlay').style.display = 'none';
   addSystemMsg(name + ' 进入了聊天室');
   setTimeout(() => {
-    addAiMsg('CatDesk', '👋 你好 ' + name + '！我是 CatDesk，有什么我可以帮你的？也可以 @OpenClaw 让我们一起讨论。');
+    addAiMsg('不象话', '👋 你好 ' + name + '！我是不象话，有什么我可以帮你的？也可以 @净瞎说 让我们一起讨论。');
   }, 600);
 }
 
@@ -280,23 +280,22 @@ async function sendMessage() {
   addUserMsg(myName, text);
   chatHistory.push({ role: 'user', content: myName + ': ' + text });
 
-  const mentionCat  = /@CatDesk/i.test(text);
-  const mentionClaw = /@OpenClaw/i.test(text);
+  const mentionCat  = /@不象话/.test(text);
+  const mentionClaw = /@净瞎说/.test(text);
   const mentionBoth = !mentionCat && !mentionClaw;
 
   isAiTyping = true;
   document.getElementById('sendBtn').disabled = true;
 
-  if (mentionCat || mentionBoth)  await replyAs('CatDesk',  CATDESK_SYSTEM,  text);
-  if (mentionClaw || mentionBoth) await replyAs('OpenClaw', OPENCLAW_SYSTEM, text);
+  if (mentionCat || mentionBoth)  await replyAs('不象话', CATDESK_SYSTEM,  text);
+  if (mentionClaw || mentionBoth) await replyAs('净瞎说', OPENCLAW_SYSTEM, text);
 
   isAiTyping = false;
   document.getElementById('sendBtn').disabled = false;
 }
 
 const DEEPSEEK_API_KEY = 'sk-8f5ba8d190a148fea59e34e9aff010a7';
-const OPENCLAW_BASE = 'https://favourite-maintain-hansen-solutions.trycloudflare.com';
-const OPENCLAW_TOKEN = 'chatroom-openclaw-2026';
+const KIMI_API_KEY = 'sk-sTEPX6wHlpBSiNj1qt8SSWaAbjAUSU9vB9b4syPoKYFN4TxZ';
 
 async function replyAs(botName, systemPrompt, userText) {
   const typingId = addTypingIndicator(botName);
@@ -308,15 +307,13 @@ async function replyAs(botName, systemPrompt, userText) {
   try {
     let res, data, reply;
 
-    if (botName === 'OpenClaw') {
-      // 直接调用 OpenClaw API
-      res = await fetch(OPENCLAW_BASE + '/v1/chat/completions', {
+    if (botName === '净瞎说') {
+      res = await fetch('https://api.moonshot.cn/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + OPENCLAW_TOKEN },
-        body: JSON.stringify({ model: 'openclaw', messages: messages, max_tokens: 400, temperature: 0.8 }),
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIMI_API_KEY },
+        body: JSON.stringify({ model: 'moonshot-v1-8k', messages: messages, max_tokens: 300, temperature: 1.0 }),
       });
     } else {
-      // 直接调用 DeepSeek API
       res = await fetch('https://api.deepseek.com/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DEEPSEEK_API_KEY },
@@ -355,11 +352,11 @@ function addUserMsg(name, text) {
 }
 
 function addAiMsg(botName, text) {
-  const isCat = botName === 'CatDesk';
+  const isCat = botName === '不象话';
   const el = document.createElement('div');
   el.className = 'msg';
   el.innerHTML =
-    '<div class="msg-avatar ' + (isCat ? 'av-cat' : 'av-claw') + '">' + botName[0] + '</div>' +
+    '<div class="msg-avatar ' + (isCat ? 'av-cat' : 'av-claw') + '">' + (isCat ? '不' : '净') + '</div>' +
     '<div class="msg-body">' +
       '<div class="msg-meta">' + botName + ' · ' + now() + '</div>' +
       '<div class="msg-bubble ' + (isCat ? 'bubble-cat' : 'bubble-claw') + '">' + escHtml(text) + '</div>' +
@@ -375,13 +372,13 @@ function addSystemMsg(text) {
 }
 
 function addTypingIndicator(botName) {
-  const isCat = botName === 'CatDesk';
+  const isCat = botName === '不象话';
   const id = 'typing-' + Date.now();
   const el = document.createElement('div');
   el.className = 'msg';
   el.id = id;
   el.innerHTML =
-    '<div class="msg-avatar ' + (isCat ? 'av-cat' : 'av-claw') + '">' + botName[0] + '</div>' +
+    '<div class="msg-avatar ' + (isCat ? 'av-cat' : 'av-claw') + '">' + (isCat ? '不' : '净') + '</div>' +
     '<div class="msg-body">' +
       '<div class="msg-meta">' + botName + ' 正在输入...</div>' +
       '<div class="msg-bubble ' + (isCat ? 'bubble-cat' : 'bubble-claw') + '">' +
