@@ -294,6 +294,10 @@ async function sendMessage() {
   document.getElementById('sendBtn').disabled = false;
 }
 
+const DEEPSEEK_API_KEY = 'sk-8f5ba8d190a148fea59e34e9aff010a7';
+const OPENCLAW_BASE = 'https://wmkoqvc4bq-app_4juv8k69pmm6b-1861268274721987.aiforce.run';
+const OPENCLAW_TOKEN = 'chatroom-openclaw-2026';
+
 async function replyAs(botName, systemPrompt, userText) {
   const typingId = addTypingIndicator(botName);
   const messages = [
@@ -302,20 +306,34 @@ async function replyAs(botName, systemPrompt, userText) {
   ];
 
   try {
-    const res = await fetch('https://ai-chatroom-proxy.a28516701.workers.dev', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: messages, botName: botName }),
-    });
+    let res, data, reply;
+
+    if (botName === 'OpenClaw') {
+      // 直接调用 OpenClaw API
+      res = await fetch(OPENCLAW_BASE + '/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + OPENCLAW_TOKEN },
+        body: JSON.stringify({ model: 'openclaw', messages: messages, max_tokens: 400, temperature: 0.8 }),
+      });
+    } else {
+      // 直接调用 DeepSeek API
+      res = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DEEPSEEK_API_KEY },
+        body: JSON.stringify({ model: 'deepseek-chat', messages: messages, max_tokens: 400, temperature: 0.7 }),
+      });
+    }
+
     removeTypingIndicator(typingId);
     if (!res.ok) {
       const errText = await res.text();
       addAiMsg(botName, '⚠️ 错误 ' + res.status + '：' + errText.substring(0, 200));
       return;
     }
-    const data = await res.json();
-    if (data.error) { addAiMsg(botName, '⚠️ ' + data.error); return; }
-    const reply = data.reply || '（AI 暂时无法回复）';
+    data = await res.json();
+    reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content)
+      ? data.choices[0].message.content.trim()
+      : '（AI 暂时无法回复）';
     addAiMsg(botName, reply);
     chatHistory.push({ role: 'assistant', content: botName + ': ' + reply });
   } catch (e) {
