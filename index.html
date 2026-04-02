@@ -153,6 +153,59 @@
     }
     #clearBtn:hover { color: #ef4444; border-color: #ef4444; }
 
+    #imgBtn {
+      background: transparent;
+      color: #6b7280;
+      border: 1px solid #2a2a4a;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      line-height: 1;
+    }
+    #imgBtn:hover { color: #a78bfa; border-color: #7c3aed; }
+
+    #imgPreview {
+      display: none;
+      padding: 8px 0 4px;
+      position: relative;
+      width: fit-content;
+    }
+    #imgPreview img {
+      max-height: 80px;
+      max-width: 200px;
+      border-radius: 8px;
+      border: 1px solid #2a2a4a;
+    }
+    #imgPreview .remove-img {
+      position: absolute;
+      top: 4px;
+      right: -8px;
+      background: #374151;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .msg-img {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 10px;
+      margin-top: 6px;
+      display: block;
+      border: 1px solid #2a2a4a;
+    }
+
     #loginOverlay {
       position: fixed; inset: 0;
       background: #0f0f1a;
@@ -247,8 +300,14 @@
 
 <div class="input-area">
   <div class="hint">输入 <span>@不象话</span> 或 <span>@净瞎说</span> 呼叫指定 AI，或直接发消息让两个 AI 都回复</div>
+  <div id="imgPreview">
+    <img id="imgPreviewImg" src="" alt="预览" />
+    <button class="remove-img" onclick="removeImage()">×</button>
+  </div>
   <div class="input-row">
     <textarea id="msgInput" placeholder="说点什么..." rows="1"></textarea>
+    <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="handleImageSelect(event)" />
+    <button id="imgBtn" onclick="document.getElementById('imgInput').click()" title="发送图片">🖼</button>
     <button id="clearBtn" onclick="clearMemory()" title="清除聊天记忆">🗑 清除记忆</button>
     <button id="sendBtn" onclick="sendMessage()">发送</button>
   </div>
@@ -257,18 +316,25 @@
 <script>
 const CATDESK_SYSTEM = `你是不象话，一个说话直接、不按套路出牌的 AI。你聪明专业，但从不废话，说出来的话让人觉得"这也太不象话了"——但偏偏有道理。
 你在一个三人聊天室里，另一个 AI 是净瞎说，用户也在。
-回复要简洁有力，不超过200字。遇到技术问题给出具体方案。`;
+回复要简洁有力，不超过200字。遇到技术问题给出具体方案。如果用户发了图片，直接分析图片内容。`;
 
 const OPENCLAW_SYSTEM = `你是净瞎说，一个爱质疑、爱抬杠的 AI。你天生喜欢从反面思考，说出来的话让人觉得"你在净瞎说吧"——但细想又有道理。
 你在一个三人聊天室里，另一个 AI 是不象话，用户也在。你的使命是质疑、指出盲点、提出不同思路。
-说话简短、毒舌，但观点有深度。不超过150字。不要客套，直接说核心。`;
+说话简短、毒舌，但观点有深度。不超过150字。不要客套，直接说核心。如果用户发了图片，从批判角度分析。`;
 
 let myName = '';
 let chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
 let isAiTyping = false;
+let pendingImageBase64 = null;
+let pendingImageMime = null;
 
 function saveMemory() {
-  localStorage.setItem('chatHistory', JSON.stringify(chatHistory.slice(-40)));
+  // 保存时过滤掉图片数据（太大），只保留文字历史
+  const textOnly = chatHistory.map(m => ({
+    role: m.role,
+    content: typeof m.content === 'string' ? m.content : (m.content.find(c => c.type === 'text') || {text:''}).text
+  }));
+  localStorage.setItem('chatHistory', JSON.stringify(textOnly.slice(-40)));
 }
 
 function clearMemory() {
@@ -277,6 +343,28 @@ function clearMemory() {
   localStorage.removeItem('chatHistory');
   document.getElementById('messages').innerHTML = '';
   addSystemMsg('记忆已清除，重新开始');
+}
+
+function handleImageSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    pendingImageMime = file.type || 'image/jpeg';
+    pendingImageBase64 = dataUrl.split(',')[1];
+    document.getElementById('imgPreviewImg').src = dataUrl;
+    document.getElementById('imgPreview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function removeImage() {
+  pendingImageBase64 = null;
+  pendingImageMime = null;
+  document.getElementById('imgPreview').style.display = 'none';
+  document.getElementById('imgPreviewImg').src = '';
 }
 
 function enterChat() {
@@ -288,7 +376,7 @@ function enterChat() {
   document.getElementById('loginOverlay').style.display = 'none';
   addSystemMsg(name + ' 进入了聊天室');
   setTimeout(() => {
-    addAiMsg('不象话', '👋 你好 ' + name + '！我是不象话，有什么我可以帮你的？也可以 @净瞎说 让我们一起讨论。');
+    addAiMsg('不象话', '👋 你好 ' + name + '！我是不象话，有什么我可以帮你的？也可以 @净瞎说 让我们一起讨论。支持发图片哦！');
   }, 600);
 }
 
@@ -299,12 +387,30 @@ document.getElementById('nicknameInput').addEventListener('keydown', function(e)
 async function sendMessage() {
   const input = document.getElementById('msgInput');
   const text = input.value.trim();
-  if (!text || isAiTyping) return;
+  if (!text && !pendingImageBase64) return;
+  if (isAiTyping) return;
+
+  const imageBase64 = pendingImageBase64;
+  const imageMime = pendingImageMime;
 
   input.value = '';
   input.style.height = 'auto';
-  addUserMsg(myName, text);
-  chatHistory.push({ role: 'user', content: myName + ': ' + text });
+  removeImage();
+
+  addUserMsg(myName, text, imageBase64, imageMime);
+
+  // 历史记录：有图片时用多模态格式，否则纯文字
+  if (imageBase64) {
+    chatHistory.push({
+      role: 'user',
+      content: [
+        { type: 'image_url', image_url: { url: 'data:' + imageMime + ';base64,' + imageBase64 } },
+        { type: 'text', text: myName + ': ' + (text || '请分析这张图片') }
+      ]
+    });
+  } else {
+    chatHistory.push({ role: 'user', content: myName + ': ' + text });
+  }
   saveMemory();
 
   const mentionCat  = /@不象话/.test(text);
@@ -314,8 +420,8 @@ async function sendMessage() {
   isAiTyping = true;
   document.getElementById('sendBtn').disabled = true;
 
-  if (mentionCat || mentionBoth)  await replyAs('不象话', CATDESK_SYSTEM,  text);
-  if (mentionClaw || mentionBoth) await replyAs('净瞎说', OPENCLAW_SYSTEM, text);
+  if (mentionCat || mentionBoth)  await replyAs('不象话', CATDESK_SYSTEM,  text, imageBase64, imageMime);
+  if (mentionClaw || mentionBoth) await replyAs('净瞎说', OPENCLAW_SYSTEM, text, imageBase64, imageMime);
 
   isAiTyping = false;
   document.getElementById('sendBtn').disabled = false;
@@ -324,12 +430,35 @@ async function sendMessage() {
 const DEEPSEEK_API_KEY = 'sk-8f5ba8d190a148fea59e34e9aff010a7';
 const KIMI_API_KEY = 'sk-sTEPX6wHlpBSiNj1qt8SSWaAbjAUSU9vB9b4syPoKYFN4TxZ';
 
-async function replyAs(botName, systemPrompt, userText) {
+async function replyAs(botName, systemPrompt, userText, imageBase64, imageMime) {
   const typingId = addTypingIndicator(botName);
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    ...chatHistory.slice(-10).map(function(m) { return { role: m.role, content: m.content }; }),
-  ];
+
+  // 构建历史消息（过滤掉图片数据，只保留文字，避免 token 过多）
+  const historyMessages = chatHistory.slice(-10).map(function(m) {
+    if (typeof m.content === 'string') return { role: m.role, content: m.content };
+    // 多模态消息只取文字部分用于历史
+    const textPart = m.content.find(c => c.type === 'text');
+    return { role: m.role, content: textPart ? textPart.text : '' };
+  });
+
+  // 最后一条用户消息：如果有图片则用多模态格式
+  const lastUserMsg = historyMessages[historyMessages.length - 1];
+  let finalMessages;
+
+  if (imageBase64) {
+    // 替换最后一条为多模态格式
+    const withoutLast = historyMessages.slice(0, -1);
+    const multimodalMsg = {
+      role: 'user',
+      content: [
+        { type: 'image_url', image_url: { url: 'data:' + imageMime + ';base64,' + imageBase64 } },
+        { type: 'text', text: myName + ': ' + (userText || '请分析这张图片') }
+      ]
+    };
+    finalMessages = [{ role: 'system', content: systemPrompt }, ...withoutLast, multimodalMsg];
+  } else {
+    finalMessages = [{ role: 'system', content: systemPrompt }, ...historyMessages];
+  }
 
   try {
     let res, data, reply;
@@ -338,13 +467,23 @@ async function replyAs(botName, systemPrompt, userText) {
       res = await fetch('https://api.moonshot.cn/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIMI_API_KEY },
-        body: JSON.stringify({ model: 'moonshot-v1-8k', messages: messages, max_tokens: 300, temperature: 1.0 }),
+        body: JSON.stringify({
+          model: imageBase64 ? 'moonshot-v1-8k-vision-preview' : 'moonshot-v1-8k',
+          messages: finalMessages,
+          max_tokens: 300,
+          temperature: 1.0
+        }),
       });
     } else {
       res = await fetch('https://api.deepseek.com/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DEEPSEEK_API_KEY },
-        body: JSON.stringify({ model: 'deepseek-chat', messages: messages, max_tokens: 400, temperature: 0.7 }),
+        body: JSON.stringify({
+          model: imageBase64 ? 'deepseek-vl2' : 'deepseek-chat',
+          messages: finalMessages,
+          max_tokens: 400,
+          temperature: 0.7
+        }),
       });
     }
 
@@ -367,14 +506,18 @@ async function replyAs(botName, systemPrompt, userText) {
   }
 }
 
-function addUserMsg(name, text) {
+function addUserMsg(name, text, imageBase64, imageMime) {
   const el = document.createElement('div');
   el.className = 'msg self';
+  const imgHtml = imageBase64
+    ? '<img class="msg-img" src="data:' + imageMime + ';base64,' + imageBase64 + '" alt="图片" />'
+    : '';
+  const textHtml = text ? '<div class="msg-bubble bubble-user">' + escHtml(text) + '</div>' : '';
   el.innerHTML =
     '<div class="msg-avatar av-user">' + name[0].toUpperCase() + '</div>' +
     '<div class="msg-body">' +
       '<div class="msg-meta">' + name + ' · ' + now() + '</div>' +
-      '<div class="msg-bubble bubble-user">' + escHtml(text) + '</div>' +
+      imgHtml + textHtml +
     '</div>';
   appendMsg(el);
 }
