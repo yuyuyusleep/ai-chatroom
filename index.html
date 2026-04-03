@@ -139,6 +139,41 @@
     #msgInput:focus { border-color: #7c3aed; }
     #msgInput::placeholder { color: #4b5563; }
 
+    /* @ 弹出选择列表 */
+    #atMenu {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      margin-bottom: 6px;
+      background: #1e1e35;
+      border: 1px solid #3a3a5a;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      z-index: 100;
+      min-width: 160px;
+    }
+    #atMenu.show { display: block; }
+    .at-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #e0e0e0;
+      transition: background 0.15s;
+    }
+    .at-item:hover, .at-item.active { background: #2a2a4a; }
+    .at-item .at-avatar {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      flex-shrink: 0;
+    }
+
     #sendBtn {
       background: #7c3aed;
       color: #fff;
@@ -452,7 +487,9 @@
     <img id="imgPreviewImg" src="" alt="预览" />
     <button class="remove-img" onclick="removeImage()">×</button>
   </div>
-  <div class="input-row">
+  <div style="position:relative">
+<div id="atMenu"></div>
+<div class="input-row">
     <textarea id="msgInput" placeholder="说点什么..." rows="1"></textarea>
     <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="handleImageSelect(event)" />
     <button id="imgBtn" onclick="document.getElementById('imgInput').click()" title="发送图片">🖼</button>
@@ -460,6 +497,7 @@
     <button id="clearBtn" onclick="clearMemory()" title="清除聊天记忆">🗑 清除记忆</button>
     <button id="sendBtn" onclick="sendMessage()">发送</button>
   </div>
+</div>
 </div>
 
 <script>
@@ -1292,14 +1330,111 @@ window.catdeskConsult = async function(question, rounds) {
   return log;
 };
 
-document.getElementById('msgInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-});
+// ===== @ 弹出选择列表 =====
+(function() {
+  var atMenu = document.getElementById('atMenu');
+  var msgInput = document.getElementById('msgInput');
+  var activeIdx = 0;
 
-document.getElementById('msgInput').addEventListener('input', function() {
-  this.style.height = 'auto';
-  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-});
+  function getMembers() {
+    var list = [
+      { name: '不象话', color: '#0ea5e9', label: '务实派' },
+      { name: '净虾说', color: '#f59e0b', label: '质疑派' },
+      { name: 'catdesk', color: '#c2410c', label: 'Claude' },
+    ];
+    if (customAI) list.push({ name: customAI.name, color: '#10b981', label: '专属 AI' });
+    return list;
+  }
+
+  function getAtQuery() {
+    var val = msgInput.value;
+    var pos = msgInput.selectionStart;
+    var before = val.slice(0, pos);
+    var m = before.match(/@([^\s@]*)$/);
+    return m ? m[1] : null;
+  }
+
+  function renderMenu(query) {
+    var members = getMembers().filter(function(m) {
+      return m.name.toLowerCase().indexOf(query.toLowerCase()) !== -1;
+    });
+    if (!members.length) { hideMenu(); return; }
+    activeIdx = 0;
+    atMenu.innerHTML = members.map(function(m, i) {
+      return '<div class="at-item' + (i === 0 ? ' active' : '') + '" data-name="' + m.name + '">' +
+        '<span class="at-avatar" style="background:' + m.color + ';color:#fff">@</span>' +
+        '<span>@' + m.name + '</span>' +
+        '<span style="font-size:11px;color:#6b7280;margin-left:auto">' + m.label + '</span>' +
+        '</div>';
+    }).join('');
+    atMenu.classList.add('show');
+    atMenu.querySelectorAll('.at-item').forEach(function(el) {
+      el.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        selectAt(el.dataset.name);
+      });
+    });
+  }
+
+  function hideMenu() {
+    atMenu.classList.remove('show');
+    atMenu.innerHTML = '';
+    activeIdx = 0;
+  }
+
+  function selectAt(name) {
+    var val = msgInput.value;
+    var pos = msgInput.selectionStart;
+    var before = val.slice(0, pos);
+    var after = val.slice(pos);
+    var newBefore = before.replace(/@([^\s@]*)$/, '@' + name + ' ');
+    msgInput.value = newBefore + after;
+    msgInput.selectionStart = msgInput.selectionEnd = newBefore.length;
+    msgInput.focus();
+    hideMenu();
+  }
+
+  msgInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    var q = getAtQuery();
+    if (q !== null) renderMenu(q);
+    else hideMenu();
+  });
+
+  msgInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      if (atMenu.classList.contains('show')) {
+        e.preventDefault();
+        var active = atMenu.querySelector('.at-item.active');
+        if (active) selectAt(active.dataset.name);
+        return;
+      }
+      e.preventDefault(); sendMessage();
+      return;
+    }
+    if (!atMenu.classList.contains('show')) return;
+    var items = atMenu.querySelectorAll('.at-item');
+    if (!items.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      items[activeIdx].classList.remove('active');
+      activeIdx = (activeIdx + 1) % items.length;
+      items[activeIdx].classList.add('active');
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      items[activeIdx].classList.remove('active');
+      activeIdx = (activeIdx - 1 + items.length) % items.length;
+      items[activeIdx].classList.add('active');
+    } else if (e.key === 'Escape') {
+      hideMenu();
+    }
+  });
+
+  msgInput.addEventListener('blur', function() {
+    setTimeout(hideMenu, 150);
+  });
+})();
 </script>
 </body>
 </html>
