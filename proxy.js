@@ -1,19 +1,37 @@
 /**
- * Claude API 本地代理
- * 解决浏览器直接调用 Claude API 的 CORS 问题
+ * Claude API 本地代理 + 静态文件服务
+ * 同时托管聊天室页面，解决 CORS 问题
  * 运行: node proxy.js
+ * 然后访问: http://localhost:3456
  */
 
 const http = require('http');
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
 
 const PORT = 3456;
-// API Key 从环境变量读取，不写死在代码里
-// 启动方式见 start-proxy.bat
 const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY || '';
 
 const server = http.createServer((req, res) => {
-  // 允许所有来源（本地聊天室需要）
+  // ===== 静态文件服务 =====
+  if (req.method === 'GET') {
+    const filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url);
+    fs.readFile(filePath, (err, data) => {
+      if (err) {
+        res.writeHead(404);
+        res.end('Not found');
+        return;
+      }
+      const ext = path.extname(filePath);
+      const mime = { '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css' }[ext] || 'text/plain';
+      res.writeHead(200, { 'Content-Type': mime + '; charset=utf-8' });
+      res.end(data);
+    });
+    return;
+  }
+
+  // ===== CORS 预检 =====
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -24,6 +42,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ===== Claude API 代理 =====
   if (req.method !== 'POST' || req.url !== '/claude') {
     res.writeHead(404);
     res.end('Not found');
@@ -59,6 +78,7 @@ const server = http.createServer((req, res) => {
       let data = '';
       proxyRes.on('data', chunk => data += chunk);
       proxyRes.on('end', () => {
+        res.setHeader('Access-Control-Allow-Origin', '*');
         res.writeHead(proxyRes.statusCode, { 'Content-Type': 'application/json' });
         res.end(data);
       });
@@ -77,9 +97,9 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, () => {
   console.log('');
   console.log('  🦞 Claude 代理已启动');
-  console.log('  监听端口: http://localhost:' + PORT);
-  console.log('  聊天室现在可以使用真正的 Claude 了');
   console.log('');
-  console.log('  保持此窗口开启，关闭后代理停止');
+  console.log('  👉 打开聊天室: http://localhost:' + PORT);
+  console.log('');
+  console.log('  保持此窗口开启，关闭后服务停止');
   console.log('');
 });
